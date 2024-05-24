@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.SeekBar;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +50,27 @@ public class Controlling extends Activity {
     private ProgressDialog progressDialog;
     Button btnSubmit;
 
+    SeekBar sensor;
+    TextView sensorvalue;
 
+    SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            // updated continuously as the user slides the thumb
+            sensorvalue.setText("" + progress);
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            // called when the user first touches the SeekBar
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            // called after the user finishes moving the SeekBar
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +79,10 @@ public class Controlling extends Activity {
         ActivityHelper.initialize(this);
         // mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         btnSubmit=(Button)findViewById(R.id.buttonSubmit);
+        sensor = (SeekBar)findViewById(R.id.seekBar);
+        sensor.setOnSeekBarChangeListener(seekBarChangeListener);
+        sensorvalue = (TextView)findViewById(R.id.textingView);
+
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
@@ -66,7 +91,6 @@ public class Controlling extends Activity {
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
 
         //Log.d(TAG, "Ready");
-
 
 
 
