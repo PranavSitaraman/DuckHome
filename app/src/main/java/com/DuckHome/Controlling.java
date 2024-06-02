@@ -2,57 +2,30 @@ package com.DuckHome;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
 public class Controlling extends Activity {
+    final static String on = "92";//on
+    final static String off = "79";//off
     private static final String TAG = "BlueTest5-Controlling";
-    private int mMaxChars = 50000;//Default//change this to string..........
-    private UUID mDeviceUUID;
-    private BluetoothSocket mBTSocket;
-    private ReadInput mReadThread = null;
-
-    private boolean mIsUserInitiatedDisconnect = false;
-    private boolean mIsBluetoothConnected = false;
-
-
-        // Global Variables for the Mesasgse and Name
-        private EditText editText;
     TextView name;
     TextView message;
-
-
-    private Button mBtnDisconnect;
-    private BluetoothDevice mDevice;
-
-    final static String on="92";//on
-    final static String off="79";//off
-
-
-    private ProgressDialog progressDialog;
     Button btnSubmit;
-
     SeekBar sensor;
     TextView sensorvalue;
-
     SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
 
         @Override
@@ -71,17 +44,35 @@ public class Controlling extends Activity {
             // called after the user finishes moving the SeekBar
         }
     };
+    private final int mMaxChars = 50000;//Default//change this to string..........
+    private UUID mDeviceUUID;
+    private BluetoothSocket mBTSocket;
+    private final ReadInput mReadThread = null;
+    private final boolean mIsUserInitiatedDisconnect = false;
+    private final boolean mIsBluetoothConnected = false;
+    // Global Variables for the Message and Name
+    private EditText editText;
+    private Button mBtnDisconnect;
+    private BluetoothDevice mDevice;
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_controlling);
-
         ActivityHelper.initialize(this);
+
+        ArrayList<Integer> sensors = new ArrayList<Integer>(Arrays.asList(10, 20, 30));
+        ArrayList<Integer> actuators = new ArrayList<Integer>(Arrays.asList(15, 25, 35));
+
+        ListView sensorlist = findViewById(R.id.sensorlist);
+        ListView actuatorlist = findViewById(R.id.actuatorlist);
+        sensorlist.setAdapter(new SeekBarAdapter(this, R.layout.seekbar_list_item, sensors));
+        actuatorlist.setAdapter(new SeekBarAdapter(this, R.layout.seekbar_list_item, actuators));
+
+        /*
         // mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
-        btnSubmit=(Button)findViewById(R.id.buttonSubmit);
-        sensor = (SeekBar)findViewById(R.id.seekBar);
         sensor.setOnSeekBarChangeListener(seekBarChangeListener);
-        sensorvalue = (TextView)findViewById(R.id.textingView);
 
 
         Intent intent = getIntent();
@@ -118,7 +109,6 @@ public class Controlling extends Activity {
                 System.arraycopy(nameByte, 0, allBytes, 0, nameByte.length);
                 System.arraycopy(messageByte, 0, allBytes, nameByte.length, messageByte.length);
 
-
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -154,20 +144,144 @@ public class Controlling extends Activity {
 
 
             }
-            });
+        });
+*/
+
+
+    }
+
+    /*
+
+        private class DisConnectBT extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected void onPreExecute() {
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {//cant inderstand these dotss
+
+                if (mReadThread != null) {
+                    mReadThread.stop();
+                    while (mReadThread.isRunning())
+                        ; // Wait until it stops
+                    mReadThread = null;
+
+                }
+
+                try {
+                    mBTSocket.close();
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                mIsBluetoothConnected = false;
+                if (mIsUserInitiatedDisconnect) {
+                    finish();
+                }
+            }
+
+        }
+
+        private void msg(String s) {
+            Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected void onPause() {
+            if (mBTSocket != null && mIsBluetoothConnected) {
+                new DisConnectBT().execute();
+            }
+            //Log.d(TAG, "Paused");
+            super.onPause();
+        }
+
+        @Override
+        protected void onResume() {
+            if (mBTSocket == null || !mIsBluetoothConnected) {
+                new ConnectBT().execute();
+            }
+            //Log.d(TAG, "Resumed");
+            super.onResume();
+        }
+
+        @Override
+        protected void onStop() {
+            //Log.d(TAG, "Stopped");
+            super.onStop();
+        }
+
+        @Override
+        protected void onSaveInstanceState(Bundle outState) {
+
+            super.onSaveInstanceState(outState);
+        }
+
+        private class ConnectBT extends AsyncTask<Void, Void, Void> {
+            private boolean mConnectSuccessful = true;
+
+            @Override
+            protected void onPreExecute() {
+
+                progressDialog = ProgressDialog.show(Controlling.this, "Hold on", "Connecting");// http://stackoverflow.com/a/11130220/1287554
+
+            }
+
+            @Override
+            protected Void doInBackground(Void... devices) {
+
+                try {
+                    if (mBTSocket == null || !mIsBluetoothConnected) {
+                        mBTSocket = mDevice.createInsecureRfcommSocketToServiceRecord(mDeviceUUID);
+                        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                        mBTSocket.connect();
+                    }
+                } catch (IOException e) {
+    // Unable to connect to device`
+                    // e.printStackTrace();
+                    mConnectSuccessful = false;
 
 
 
+                }
+                return null;
+            }
 
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
 
+                if (!mConnectSuccessful) {
+                    Toast.makeText(getApplicationContext(), "Could not connect to device.Please turn on your Hardware", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    msg("Connected to device");
+                    mIsBluetoothConnected = true;
+                    mReadThread = new ReadInput(); // Kick off input reader
+                }
 
+                progressDialog.dismiss();
+            }
 
+        }
+
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     private class ReadInput implements Runnable {
 
         private boolean bStop = false;
-        private Thread t;
+        private final Thread t;
 
         public ReadInput() {
             t = new Thread(this, "Input Thread");
@@ -201,7 +315,6 @@ public class Controlling extends Activity {
                          */
 
 
-
                     }
                     Thread.sleep(500);
                 }
@@ -218,132 +331,5 @@ public class Controlling extends Activity {
             bStop = true;
         }
 
-    }
-
-
-
-
-    private class DisConnectBT extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {//cant inderstand these dotss
-
-            if (mReadThread != null) {
-                mReadThread.stop();
-                while (mReadThread.isRunning())
-                    ; // Wait until it stops
-                mReadThread = null;
-
-            }
-
-            try {
-                mBTSocket.close();
-            } catch (IOException e) {
-
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            mIsBluetoothConnected = false;
-            if (mIsUserInitiatedDisconnect) {
-                finish();
-            }
-        }
-
-    }
-
-    private void msg(String s) {
-        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void onPause() {
-        if (mBTSocket != null && mIsBluetoothConnected) {
-            new DisConnectBT().execute();
-        }
-        //Log.d(TAG, "Paused");
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        if (mBTSocket == null || !mIsBluetoothConnected) {
-            new ConnectBT().execute();
-        }
-        //Log.d(TAG, "Resumed");
-        super.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        //Log.d(TAG, "Stopped");
-        super.onStop();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-
-        super.onSaveInstanceState(outState);
-    }
-
-    private class ConnectBT extends AsyncTask<Void, Void, Void> {
-        private boolean mConnectSuccessful = true;
-
-        @Override
-        protected void onPreExecute() {
-
-            progressDialog = ProgressDialog.show(Controlling.this, "Hold on", "Connecting");// http://stackoverflow.com/a/11130220/1287554
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... devices) {
-
-            try {
-                if (mBTSocket == null || !mIsBluetoothConnected) {
-                    mBTSocket = mDevice.createInsecureRfcommSocketToServiceRecord(mDeviceUUID);
-                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-                    mBTSocket.connect();
-                }
-            } catch (IOException e) {
-// Unable to connect to device`
-                // e.printStackTrace();
-                mConnectSuccessful = false;
-
-
-
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
-            if (!mConnectSuccessful) {
-                Toast.makeText(getApplicationContext(), "Could not connect to device.Please turn on your Hardware", Toast.LENGTH_LONG).show();
-                finish();
-            } else {
-                msg("Connected to device");
-                mIsBluetoothConnected = true;
-                mReadThread = new ReadInput(); // Kick off input reader
-            }
-
-            progressDialog.dismiss();
-        }
-
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 }

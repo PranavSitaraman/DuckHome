@@ -65,6 +65,17 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
 
+        BluetoothDevice device = null;
+
+        Intent intent = new Intent(getApplicationContext(), Controlling.class); //
+        intent.putExtra(DEVICE_EXTRA, device); //
+        intent.putExtra(DEVICE_UUID, mDeviceUUID.toString()); //
+        intent.putExtra(BUFFER_SIZE, mBufferSize); //
+        startActivity(intent);
+        return;
+    }
+    protected void other(Bundle savedInstanceState)
+    {
         search = (Button) findViewById(R.id.search);
         connect = (Button) findViewById(R.id.connect);
 
