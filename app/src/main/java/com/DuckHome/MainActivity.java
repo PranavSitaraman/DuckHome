@@ -60,22 +60,26 @@ public class MainActivity extends Activity {
     private static final String TAG = "BlueTest5-MainActivity";
 
 
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_connect);
+//
+//        BluetoothDevice device = null;
+//
+//        Intent intent = new Intent(getApplicationContext(), Controlling.class); //
+//        intent.putExtra(DEVICE_EXTRA, device); //
+//        intent.putExtra(DEVICE_UUID, mDeviceUUID.toString()); //
+//        intent.putExtra(BUFFER_SIZE, mBufferSize); //
+//        startActivity(intent);
+//        return;
+//    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
 
-        BluetoothDevice device = null;
-
-        Intent intent = new Intent(getApplicationContext(), Controlling.class); //
-        intent.putExtra(DEVICE_EXTRA, device); //
-        intent.putExtra(DEVICE_UUID, mDeviceUUID.toString()); //
-        intent.putExtra(BUFFER_SIZE, mBufferSize); //
-        startActivity(intent);
-        return;
-    }
-    protected void other(Bundle savedInstanceState)
-    {
         search = (Button) findViewById(R.id.search);
         connect = (Button) findViewById(R.id.connect);
 
