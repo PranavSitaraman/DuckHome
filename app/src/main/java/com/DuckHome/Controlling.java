@@ -23,6 +23,14 @@ public class Controlling extends Activity {
     final static String off = "79";//off
     private static final String TAG = "BlueTest5-Controlling";
     private final boolean mIsUserInitiatedDisconnect = false;
+    ArrayList<Integer> sensors;
+    ArrayList<String> sensor_titles;
+    ArrayList<Integer> actuators;
+    ArrayList<String> actuator_titles;
+    ListView sensorlist;
+    ListView actuatorlist;
+    SeekBarAdapter sensors_adapt;
+    SeekBarAdapter actuators_adapt;
     private int mMaxChars = 50000;//Default//change this to string..........
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
@@ -37,16 +45,17 @@ public class Controlling extends Activity {
         setContentView(R.layout.activity_controlling);
         ActivityHelper.initialize(this);
 
-        ArrayList<Integer> sensors = new ArrayList<Integer>(Arrays.asList(10, 20, 30));
-        ArrayList<String> sensor_titles = new ArrayList<>(Arrays.asList("First", "Second", "Third"));
-        ArrayList<Integer> actuators = new ArrayList<Integer>(Arrays.asList(15, 25, 35));
-        ArrayList<String> actuator_titles = new ArrayList<>(Arrays.asList("Fourth", "Fifth", "Sixth"));
+        sensors = new ArrayList<Integer>(Arrays.asList(10, 20, 30));
+        sensor_titles = new ArrayList<>(Arrays.asList("First", "Second", "Third"));
+        actuators = new ArrayList<Integer>(Arrays.asList(15, 25, 35));
+        actuator_titles = new ArrayList<>(Arrays.asList("Fourth", "Fifth", "Sixth"));
 
-        ListView sensorlist = findViewById(R.id.sensorlist);
-        ListView actuatorlist = findViewById(R.id.actuatorlist);
-        sensorlist.setAdapter(new SeekBarAdapter(this, R.layout.seekbar_list_item, sensors, sensor_titles, this));
-        actuatorlist.setAdapter(new SeekBarAdapter(this, R.layout.seekbar_list_item, actuators, actuator_titles, this));
-
+        sensorlist = findViewById(R.id.sensorlist);
+        actuatorlist = findViewById(R.id.actuatorlist);
+        sensors_adapt = new SeekBarAdapter(this, R.layout.seekbar_list_item, sensors, sensor_titles, this, false);
+        sensorlist.setAdapter(sensors_adapt);
+        actuators_adapt = new SeekBarAdapter(this, R.layout.seekbar_list_item, actuators, actuator_titles, this, true);
+        actuatorlist.setAdapter(actuators_adapt);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
@@ -251,7 +260,16 @@ public class Controlling extends Activity {
                         /*
                          * If checked then receive text, better design would probably be to stop thread if unchecked and free resources, but this is a quick fix
                          */
-
+                        String[] splited = strInput.split(" ");
+                        if (splited.length == 2) {
+                            int position = sensor_titles.indexOf(splited[0]);
+                            sensors_adapt.data.set(position, Integer.parseInt(splited[1]));
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    sensors_adapt.notifyDataSetChanged();
+                                }
+                            });
+                        }
 
                     }
                     Thread.sleep(500);

@@ -13,17 +13,19 @@ import androidx.annotation.NonNull;
 import java.util.List;
 
 public class SeekBarAdapter extends ArrayAdapter<Integer> {
-    List<Integer> data;
+    public List<Integer> data;
     List<String> titles;
     int resource;
     Controlling inside;
+    boolean clickable;
 
-    SeekBarAdapter(Context context, int layoutResource, List<Integer> data, List<String> titles, Controlling inside) {
+    SeekBarAdapter(Context context, int layoutResource, List<Integer> data, List<String> titles, Controlling inside, boolean clickable) {
         super(context, layoutResource, data);
         this.data = data;
         this.titles = titles;
         this.resource = layoutResource;
         this.inside = inside;
+        this.clickable = clickable;
     }
 
     @NonNull
@@ -40,7 +42,9 @@ public class SeekBarAdapter extends ArrayAdapter<Integer> {
         TextView titlevalue = convertView.findViewById(R.id.title);
         sensorvalue.setText("" + value);
         titlevalue.setText(title);
-
+        if (!clickable) {
+            sb.setEnabled(false);
+        }
         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekbar, int progress, boolean wasInitiatedByUser) {
