@@ -45,10 +45,10 @@ public class Controlling extends Activity {
         setContentView(R.layout.activity_controlling);
         ActivityHelper.initialize(this);
 
-        sensors = new ArrayList<Integer>(Arrays.asList(10, 20, 30));
-        sensor_titles = new ArrayList<>(Arrays.asList("First", "Second", "Third"));
-        actuators = new ArrayList<Integer>(Arrays.asList(15, 25, 35));
-        actuator_titles = new ArrayList<>(Arrays.asList("Fourth", "Fifth", "Sixth"));
+        sensors = new ArrayList<Integer>();
+        sensor_titles = new ArrayList<String>();
+        actuators = new ArrayList<Integer>();
+        actuator_titles = new ArrayList<String>();
 
         sensorlist = findViewById(R.id.sensorlist);
         actuatorlist = findViewById(R.id.actuatorlist);
@@ -262,13 +262,35 @@ public class Controlling extends Activity {
                          */
                         String[] splited = strInput.split(" ");
                         if (splited.length == 2) {
-                            int position = sensor_titles.indexOf(splited[0]);
-                            sensors_adapt.data.set(position, Integer.parseInt(splited[1]));
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    sensors_adapt.notifyDataSetChanged();
+                            if (splited[0].charAt(0) == 'S') {
+                                int position = sensor_titles.indexOf(splited[0]);
+                                if (position != -1) {
+                                    sensors_adapt.data.set(position, Integer.parseInt(splited[1]));
+                                } else {
+                                    sensors_adapt.titles.add(splited[0]);
+                                    sensors_adapt.data.add(Integer.parseInt(splited[1]));
                                 }
-                            });
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        sensors_adapt.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                int position = actuator_titles.indexOf(splited[0]);
+                                if (position != -1) {
+                                    actuators_adapt.data.set(position, Integer.parseInt(splited[1]));
+                                } else {
+                                    actuators_adapt.titles.add(splited[0]);
+                                    actuators_adapt.data.add(Integer.parseInt(splited[1]));
+                                }
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        actuators_adapt.notifyDataSetChanged();
+                                    }
+                                });
+                            }
                         }
 
                     }

@@ -14,7 +14,7 @@ import java.util.List;
 
 public class SeekBarAdapter extends ArrayAdapter<Integer> {
     public List<Integer> data;
-    List<String> titles;
+    public List<String> titles;
     int resource;
     Controlling inside;
     boolean clickable;
@@ -60,7 +60,7 @@ public class SeekBarAdapter extends ArrayAdapter<Integer> {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // called after the user finishes moving the SeekBar
 
-                final String nameString = titlevalue.getText().toString();
+                final String nameString = titlevalue.getText().toString() + " ";
                 final String messageString = sensorvalue.getText().toString();
 
                 inside.sendBT(nameString, messageString);
