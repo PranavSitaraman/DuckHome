@@ -261,14 +261,14 @@ public class Controlling extends Activity {
                          * If checked then receive text, better design would probably be to stop thread if unchecked and free resources, but this is a quick fix
                          */
                         String[] splited = strInput.split(" ");
-                        if (splited.length == 2) {
+                        if (splited.length == 3) {
                             if (splited[0].charAt(0) == 'S') {
-                                int position = sensor_titles.indexOf(splited[0]);
+                                int position = sensor_titles.indexOf(splited[1]);
                                 if (position != -1) {
-                                    sensors_adapt.data.set(position, Integer.parseInt(splited[1]));
+                                    sensors_adapt.data.set(position, Integer.parseInt(splited[2]));
                                 } else {
-                                    sensors_adapt.titles.add(splited[0]);
-                                    sensors_adapt.data.add(Integer.parseInt(splited[1]));
+                                    sensors_adapt.titles.add(splited[1]);
+                                    sensors_adapt.data.add(Integer.parseInt(splited[2]));
                                 }
                                 runOnUiThread(new Runnable() {
                                     public void run() {
@@ -276,14 +276,14 @@ public class Controlling extends Activity {
                                     }
                                 });
                             }
-                            else
+                            else if (splited[0].charAt(0) == 'A')
                             {
-                                int position = actuator_titles.indexOf(splited[0]);
+                                int position = actuator_titles.indexOf(splited[1]);
                                 if (position != -1) {
-                                    actuators_adapt.data.set(position, Integer.parseInt(splited[1]));
+                                    actuators_adapt.data.set(position, Integer.parseInt(splited[2]));
                                 } else {
-                                    actuators_adapt.titles.add(splited[0]);
-                                    actuators_adapt.data.add(Integer.parseInt(splited[1]));
+                                    actuators_adapt.titles.add(splited[1]);
+                                    actuators_adapt.data.add(Integer.parseInt(splited[2]));
                                 }
                                 runOnUiThread(new Runnable() {
                                     public void run() {

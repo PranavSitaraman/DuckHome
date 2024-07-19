@@ -6,14 +6,14 @@
 #define Serial SERIAL_PORT_USBVIRTUAL
 #endif
 
-bool sendActuatorPosition();
+String sendActuatorPosition();
 bool runActuator(void *);
 
 MamaDuck duck;
 auto timer = timer_create_default();
 const int INTERVAL_MS = 10000;
 volatile int position = 1;
-std::string deviceId("ACTU0001");
+std::string deviceId("THERMOST");
 
 void setup()
 {
@@ -43,15 +43,15 @@ void loop()
   duck.run();
 }
 
-bool sendActuatorPosition()
+String sendActuatorPosition()
 {
-  String message = String(deviceId.c_str()) + " " + String(position);
-  int err = duck.sendData(topics::status, message.c_str());
-  if (err == DUCK_ERR_NONE) return true;
-  return false;
+  return String(position);
 }
 
 bool runActuator(void *)
 {
-  return sendActuatorPosition();
+  String message = "A " + String(deviceId.c_str()) + " " + sendActuatorPosition();
+  int err = duck.sendData(topics::status, message.c_str());
+  if (err == DUCK_ERR_NONE) return true;
+  return false;
 }

@@ -6,13 +6,13 @@
 #define Serial SERIAL_PORT_USBVIRTUAL
 #endif
 
-bool sendSensorData();
+String sendSensorData();
 bool runSensor(void *);
 
 DuckLink duck;
 auto timer = timer_create_default();
 const int INTERVAL_MS = 10000;
-std::string deviceId("SENS0001");
+std::string deviceId("TEMPERAT");
 
 void setup()
 {
@@ -30,15 +30,15 @@ void loop()
   duck.run();
 }
 
-bool sendSensorData()
+String sendSensorData()
 {
-  String message = String(deviceId.c_str()) + " " + String(random(1, 100));
-  int err = duck.sendData(topics::status, message.c_str());
-  if (err == DUCK_ERR_NONE) return true;
-  return false;
+  return String(random(1, 100));
 }
 
 bool runSensor(void *)
 {
-  return sendSensorData();
+  String message = "S " + String(deviceId.c_str()) + " " + sendSensorData();
+  int err = duck.sendData(topics::status, message.c_str());
+  if (err == DUCK_ERR_NONE) return true;
+  return false;
 }
